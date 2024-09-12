@@ -1,0 +1,273 @@
+import React, { useState, useEffect } from 'react';
+
+const Sidebar = () => {
+  const [currentView, setCurrentView] = useState('overview');
+  const [logEntries, setLogEntries] = useState([]);
+  const [profile, setProfile] = useState({
+    picture: '',
+    title: '',
+    firstName: '',
+    lastName: '',
+  });
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [searchDate, setSearchDate] = useState('');
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      let ntime = new Date();
+      ntime = ntime - 2*3600*1000;
+      setCurrentTime(new Date(ntime));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+
+  const handleProfileSubmit = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    setProfile({
+      picture: formData.get('picture'),
+      title: formData.get('title'),
+      firstName: formData.get('firstName'),
+      lastName: formData.get('lastName'),
+    });
+    setCurrentView('logEntry');
+  };
+
+  const handleLogEntrySubmit = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const newEntry = {
+      id: logEntries.length + 1,
+      title: formData.get('title'),
+      fullName: `${profile.firstName} ${profile.lastName}`,
+      item: formData.get('item'),
+      operationalComment: formData.get('operationalComment'),
+      submissionDate: new Date().toLocaleString(),
+      verified: false,
+      runningTime: new Date(),
+    };
+    setLogEntries([...logEntries, newEntry]);
+    setCurrentView('loggedEntries');
+  };
+
+  const handleVerification = (id) => {
+    setLogEntries(
+      logEntries.map(entry =>
+        entry.id === id ? { ...entry, verified: true } : entry
+      )
+    );
+  };
+
+  const handleEdit = (id) => {
+    const entryToEdit = logEntries.find(entry => entry.id === id);
+    if (entryToEdit) {
+      setCurrentView('logEntry');
+      // Populate the form with the entry data for editing
+    }
+  };
+
+  const filteredEntries = logEntries.filter(entry => 
+    searchDate ? entry.submissionDate.includes(searchDate) : true
+  );
+
+  return (
+    <div style={{ display: 'flex', height: '100vh' }}>
+      <div className='menu' style={styles.menu}>
+        <div className='logo' style={styles.logo}>
+          <h2>User Dashboard</h2>
+        </div>
+        <div className="menu--list" style={styles.menuList}>
+          <a href='#' className="item" style={styles.item} onClick={() => setCurrentView('overview')}>
+            User Profile
+          </a>
+          <a href='#' className="item" style={styles.item} onClick={() => setCurrentView('logEntry')}>
+            Log Entry
+          </a>
+          <a href='#' className="item" style={styles.item} onClick={() => setCurrentView('loggedEntries')}>
+            Logged Entries
+          </a>
+          <a href='#' className="item" style={styles.item}>
+            Log out
+          </a>
+        </div>
+      </div>
+
+      <div style={{ flex: 1, padding: '20px' }}>
+        {currentView === 'overview' && (
+          <div>
+            <h2>User Profile</h2>
+            <form onSubmit={handleProfileSubmit}>
+            <div>
+            <label>Profile Picture:</label>
+            <input type="file" name="picture" />
+          </div>
+          <div>
+            <label>Title:</label>
+            <select name="title" required>
+              <option value="">Select a title</option>
+              <option value="Mr.">Mr.</option>
+              <option value="Ms.">Ms.</option>
+              <option value="Mrs.">Mrs.</option>
+              <option value="Dr.">Dr.</option>
+            </select>
+          </div>
+          <div>
+            <label>First Name:</label>
+            <input type="text" name="firstName" required />
+          </div>
+          <div>
+            <label>Last Name:</label>
+            <input type="text" name="lastName" required />
+          </div>
+          <div>
+            <label>Employee ID:</label>
+            <input type="text" name="employeeId" required />
+          </div>
+          <div>
+            <label>Position/Role:</label>
+            <input type="text" name="position" required />
+          </div>
+          <div>
+            <label>Contact Information:</label>
+            <input type="email" name="email" placeholder="Email" required />
+            <input type="tel" name="phone" placeholder="Phone Number" required />
+          </div>
+          <div>
+            <label>Qualifications/Certifications:</label>
+            <textarea name="qualifications" required></textarea>
+          </div>
+          <div>
+            <label>Years of Experience:</label>
+            <input type="number" name="experience" required />
+          </div>
+          <div>
+            <label>Shift Schedule:</label>
+            <input type="text" name="shiftSchedule" required />
+          </div>
+          <div>
+            <label>Emergency Contact Information:</label>
+            <input type="text" name="emergencyContact" required />
+          </div>
+          <div>
+            <label>Languages Spoken:</label>
+            <input type="text" name="languages" required />
+          </div>
+          <div>
+            <label>Special Skills or Expertise:</label>
+            <textarea name="skills" required></textarea>
+          </div>
+          <div>
+            <label>Medical Clearance Status:</label>
+            <input type="text" name="medicalClearance" required />
+          </div>
+          <div>
+            <label>Training Records:</label>
+            <textarea name="trainingRecords" required></textarea>
+          </div>
+          <div>
+            <label>Supervisor's Name:</label>
+            <input type="text" name="supervisor" required />
+          </div>
+          <button type="submit">Save</button>
+        </form>
+          </div>
+        )}
+        {currentView === 'logEntry' && (
+          <div>
+            <h2>Log Entry</h2>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <h3>{currentTime.toLocaleDateString()}</h3>
+              <h3>{currentTime.toLocaleTimeString()}</h3>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div>
+                {profile.picture ? (
+                  <img src={URL.createObjectURL(profile.picture)} alt="Profile" style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
+                ) : (
+                  <div style={{ width: '50px', height: '50px', borderRadius: '50%', backgroundColor: '#ccc' }}></div>
+                )}
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <p>{profile.title} {profile.lastName}</p>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'green', marginLeft: '5px' }}></div>
+                </div>
+              </div>
+            </div>
+            <form onSubmit={handleLogEntrySubmit}>
+              <div>
+                <label>Item:</label>
+                <select name="item" required>
+                  <option value="">Select an item</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Event">Record Event</option>
+                  <option value="Irregularity">Irregularity</option>
+                  <option value="Incident">Notable Incident</option>
+                </select>
+              </div>
+              <div>
+                <label>Operational Comment:</label>
+                <textarea name="operationalComment" required></textarea>
+              </div>
+              <button type="button">Add Signature</button>
+              <button type="submit">Submit</button>
+            </form>
+          </div>
+        )}
+        {currentView === 'loggedEntries' && (
+          <div>
+            <h2>Logged Entries</h2>
+            <input 
+              type="date" 
+              value={searchDate} 
+              onChange={(e) => setSearchDate(e.target.value)} 
+              placeholder="Search by date" 
+            />
+            {filteredEntries.map(entry => (
+              <div key={entry.id} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
+                <p><strong>{entry.id}. {entry.fullName} - Digital Occurrence {entry.id}</strong></p>
+                <div>
+                  <p><strong>Title:</strong> {entry.title}</p>
+                  <p><strong>Item:</strong> {entry.item}</p>
+                  <p><strong>Comment:</strong> {entry.operationalComment}</p>
+                  <p><strong>Submission Date:</strong> {entry.submissionDate}</p>
+                  <p><strong>Verified:</strong> {entry.verified ? 'Yes' : 'No'}</p>
+                  {!entry.verified && (
+                    <div>
+                      <p><strong>Running Time:</strong> {new Date() - new Date(entry.runningTime)} ms</p>
+                      <button onClick={() => handleVerification(entry.id)}>Verify</button>
+                      <button onClick={() => handleEdit(entry.id)}>Edit</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            <button onClick={() => setCurrentView('logEntry')}>Add Another Entry</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const styles = {
+  menu: {
+    width: '200px',
+    backgroundColor: '#f4f4f4',
+    padding: '20px',
+  },
+  logo: {
+    marginBottom: '20px',
+  },
+  menuList: {
+    listStyleType: 'none',
+    padding: 0,
+  },
+  item: {
+    display: 'block',
+    padding: '10px 0',
+    color: '#333',
+    textDecoration: 'none',
+  },
+};
+
+export default Sidebar;

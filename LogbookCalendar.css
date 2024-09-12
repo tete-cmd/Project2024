@@ -1,0 +1,44 @@
+/* Logbook Calendar Styling */
+.calendar-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+  }
+  
+  h1 {
+    font-size: 2em;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .entries {
+    margin-top: 20px;
+  }
+  
+  .loading {
+    font-size: 1.5em;
+    color: purple;
+  }
+  
+  .error {
+    font-size: 1.5em;
+    color: red;
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  li {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+  }
